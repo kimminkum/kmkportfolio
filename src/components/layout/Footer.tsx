@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 import {
   Facebook,
   Twitter,
@@ -7,39 +7,39 @@ import {
   Mail,
   Phone,
   MapPin,
-} from 'lucide-react';
+} from "lucide-react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     shop: [
-      { name: 'All Products', href: '/products' },
-      { name: 'New Arrivals', href: '/new' },
-      { name: 'Best Sellers', href: '/bestsellers' },
-      { name: 'Deals', href: '/deals' },
-      { name: 'Gift Cards', href: '/gift-cards' },
+      { name: "All Products", href: "/products", enabled: true },
+      { name: "New Arrivals", href: "/new", enabled: false },
+      { name: "Best Sellers", href: "/bestsellers", enabled: false },
+      { name: "Deals", href: "/deals", enabled: false },
+      { name: "Gift Cards", href: "/gift-cards", enabled: false },
     ],
     support: [
-      { name: 'Help Center', href: '/help' },
-      { name: 'Contact Us', href: '/contact' },
-      { name: 'Track Order', href: '/track-order' },
-      { name: 'Returns', href: '/returns' },
-      { name: 'Size Guide', href: '/size-guide' },
+      { name: "Help Center", href: "/help", enabled: false },
+      { name: "Contact Us", href: "/contact", enabled: false },
+      { name: "Track Order", href: "/track-order", enabled: false },
+      { name: "Returns", href: "/returns", enabled: false },
+      { name: "Size Guide", href: "/size-guide", enabled: false },
     ],
     company: [
-      { name: 'About Us', href: '/about' },
-      { name: 'Careers', href: '/careers' },
-      { name: 'Press', href: '/press' },
-      { name: 'Blog', href: '/blog' },
-      { name: 'Investors', href: '/investors' },
+      { name: "About Us", href: "/about", enabled: false },
+      { name: "Careers", href: "/careers", enabled: false },
+      { name: "Press", href: "/press", enabled: false },
+      { name: "Blog", href: "/blog", enabled: false },
+      { name: "Investors", href: "/investors", enabled: false },
     ],
     legal: [
-      { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Service', href: '/terms' },
-      { name: 'Cookie Policy', href: '/cookies' },
-      { name: 'Accessibility', href: '/accessibility' },
-      { name: 'Sitemap', href: '/sitemap' },
+      { name: "Privacy Policy", href: "/privacy", enabled: false },
+      { name: "Terms of Service", href: "/terms", enabled: false },
+      { name: "Cookie Policy", href: "/cookies", enabled: false },
+      { name: "Accessibility", href: "/accessibility", enabled: false },
+      { name: "Sitemap", href: "/sitemap", enabled: false },
     ],
   };
 
@@ -84,12 +84,18 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.shop.map(link => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
+                  {link.enabled ? (
+                    <Link
+                      href={link.href}
+                      className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-600 text-sm cursor-not-allowed">
+                      {link.name}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -101,12 +107,18 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.support.map(link => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
+                  {link.enabled ? (
+                    <Link
+                      href={link.href}
+                      className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-600 text-sm cursor-not-allowed">
+                      {link.name}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -118,12 +130,18 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.company.map(link => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
+                  {link.enabled ? (
+                    <Link
+                      href={link.href}
+                      className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-600 text-sm cursor-not-allowed">
+                      {link.name}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -135,12 +153,18 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.legal.map(link => (
                 <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
+                  {link.enabled ? (
+                    <Link
+                      href={link.href}
+                      className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer"
+                    >
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-600 text-sm cursor-not-allowed">
+                      {link.name}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

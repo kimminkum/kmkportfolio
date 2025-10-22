@@ -22,8 +22,8 @@ export interface ProductFilters {
   search?: string;
 }
 
-export type SortOption = 'name' | 'price' | 'rating' | 'createdAt';
-export type SortOrder = 'asc' | 'desc';
+export type SortOption = "name" | "price" | "rating" | "createdAt";
+export type SortOrder = "asc" | "desc";
 
 // Cart types
 export interface CartItem {
@@ -84,11 +84,11 @@ export interface Order {
 }
 
 export type OrderStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'shipped'
-  | 'delivered'
-  | 'cancelled';
+  | "pending"
+  | "confirmed"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export interface Address {
   street: string;
@@ -117,4 +117,16 @@ export interface WishlistStore {
   removeItem: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
   hasHydrated: boolean;
+}
+
+export interface Pagination {
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
+
+export interface ProductsResponse {
+  data: Product[]; // 목록
+  pagination: Pagination; // 페이지네이션 정보
 }

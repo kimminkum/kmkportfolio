@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Search, X, Filter } from 'lucide-react';
-import { ProductFilters, SortOption, SortOrder } from '@/types';
-import { useCategories } from '@/hooks/useProducts';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Search, X, Filter } from "lucide-react";
+import { ProductFilters, SortOption, SortOrder } from "@/types";
+import { useCategories } from "@/hooks/useProducts";
+import { cn } from "@/lib/utils";
 
 interface ProductFiltersProps {
   filters: ProductFilters & {
@@ -31,10 +31,10 @@ interface ProductFiltersProps {
 }
 
 const SORT_OPTIONS = [
-  { value: 'name', label: 'Name' },
-  { value: 'price', label: 'Price' },
-  { value: 'rating', label: 'Rating' },
-  { value: 'createdAt', label: 'Newest' },
+  { value: "name", label: "Name" },
+  { value: "price", label: "Price" },
+  { value: "rating", label: "Rating" },
+  { value: "createdAt", label: "Newest" },
 ] as const;
 
 export function ProductFiltersComponent({
@@ -42,7 +42,7 @@ export function ProductFiltersComponent({
   onFiltersChange,
   className,
 }: ProductFiltersProps) {
-  const [searchTerm, setSearchTerm] = useState(filters.search || '');
+  const [searchTerm, setSearchTerm] = useState(filters.search || "");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const { data: categories } = useCategories();
 
@@ -55,7 +55,10 @@ export function ProductFiltersComponent({
     return () => clearTimeout(timer);
   }, [searchTerm, filters, onFiltersChange]);
 
-  const handleFilterChange = (key: keyof ProductFilters, value: any) => {
+  const handleFilterChange = (
+    key: keyof ProductFilters,
+    value: string | number | boolean | undefined
+  ) => {
     onFiltersChange({
       ...filters,
       [key]: value || undefined,
@@ -66,24 +69,24 @@ export function ProductFiltersComponent({
     onFiltersChange({
       ...filters,
       sortBy,
-      sortOrder: 'asc',
+      sortOrder: "asc",
     });
   };
 
   const clearFilters = () => {
-    setSearchTerm('');
+    setSearchTerm("");
     onFiltersChange({
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
+      sortBy: "createdAt",
+      sortOrder: "desc",
     });
   };
 
   const hasActiveFilters = Object.values(filters).some(
-    value => value !== undefined && value !== 'createdAt' && value !== 'desc'
+    value => value !== undefined && value !== "createdAt" && value !== "desc"
   );
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* 검색 바 */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -116,7 +119,7 @@ export function ProductFiltersComponent({
         </Button>
 
         <Select
-          value={filters.sortBy || 'createdAt'}
+          value={filters.sortBy || "createdAt"}
           onValueChange={handleSortChange}
         >
           <SelectTrigger className="w-40">
@@ -141,18 +144,23 @@ export function ProductFiltersComponent({
 
       {/* 고급 필터 */}
       {showAdvancedFilters && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-gray-50">
+        <div className="grid grid-cols-1 gap-4 p-4 border rounded-lg bg-gray-50">
           <div>
             <label className="text-sm font-medium mb-2 block">Category</label>
             <Select
-              value={filters.category || ''}
-              onValueChange={value => handleFilterChange('category', value)}
+              value={filters.category || "all"}
+              onValueChange={value =>
+                handleFilterChange(
+                  "category",
+                  value === "all" ? undefined : value
+                )
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories?.map(category => (
                   <SelectItem key={category} value={category}>
                     {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -170,10 +178,10 @@ export function ProductFiltersComponent({
               <Input
                 type="number"
                 placeholder="Min"
-                value={filters.minPrice || ''}
+                value={filters.minPrice || ""}
                 onChange={e =>
                   handleFilterChange(
-                    'minPrice',
+                    "minPrice",
                     e.target.value ? Number(e.target.value) : undefined
                   )
                 }
@@ -182,10 +190,10 @@ export function ProductFiltersComponent({
               <Input
                 type="number"
                 placeholder="Max"
-                value={filters.maxPrice || ''}
+                value={filters.maxPrice || ""}
                 onChange={e =>
                   handleFilterChange(
-                    'maxPrice',
+                    "maxPrice",
                     e.target.value ? Number(e.target.value) : undefined
                   )
                 }
@@ -200,12 +208,14 @@ export function ProductFiltersComponent({
             </label>
             <Select
               value={
-                filters.inStock === undefined ? '' : filters.inStock.toString()
+                filters.inStock === undefined
+                  ? "all"
+                  : filters.inStock.toString()
               }
               onValueChange={value =>
                 handleFilterChange(
-                  'inStock',
-                  value === '' ? undefined : value === 'true'
+                  "inStock",
+                  value === "all" ? undefined : value === "true"
                 )
               }
             >
@@ -213,7 +223,7 @@ export function ProductFiltersComponent({
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="true">In Stock</SelectItem>
                 <SelectItem value="false">Out of Stock</SelectItem>
               </SelectContent>
@@ -230,7 +240,7 @@ export function ProductFiltersComponent({
               Category: {filters.category}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('category', undefined)}
+                onClick={() => handleFilterChange("category", undefined)}
               />
             </Badge>
           )}
@@ -239,7 +249,7 @@ export function ProductFiltersComponent({
               Min: ${filters.minPrice}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('minPrice', undefined)}
+                onClick={() => handleFilterChange("minPrice", undefined)}
               />
             </Badge>
           )}
@@ -248,16 +258,16 @@ export function ProductFiltersComponent({
               Max: ${filters.maxPrice}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('maxPrice', undefined)}
+                onClick={() => handleFilterChange("maxPrice", undefined)}
               />
             </Badge>
           )}
           {filters.inStock !== undefined && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              {filters.inStock ? 'In Stock' : 'Out of Stock'}
+              {filters.inStock ? "In Stock" : "Out of Stock"}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('inStock', undefined)}
+                onClick={() => handleFilterChange("inStock", undefined)}
               />
             </Badge>
           )}

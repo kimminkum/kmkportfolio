@@ -1,14 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ProductCard } from '@/components/features/ProductCard';
-import { useProduct, useProducts } from '@/hooks/useProducts';
+import { useState, use } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ProductCard } from "@/components/features/ProductCard";
+import { useProduct, useProducts } from "@/hooks/useProducts";
 import {
   Heart,
   ShoppingCart,
@@ -20,21 +19,31 @@ import {
   Minus,
   Plus,
   Check,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useCartStore } from "@/stores/cartStore";
+import { useWishlistStore } from "@/stores/wishlistStore";
+import { Product } from "@/types";
 
 interface ProductDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function ProductDetailPage({ params }: ProductDetailPageProps) {
+export default function ProductDetailPage(props: ProductDetailPageProps) {
+  const params = use(props.params);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isInWishlist, setIsInWishlist] = useState(false);
 
   const { data: product, isLoading, error } = useProduct(params.id);
+
+  const addToCart = useCartStore(state => state.addItem);
+  const addToWishlist = useWishlistStore(state => state.addItem);
+  const removeFromWishlist = useWishlistStore(state => state.removeItem);
+  const isInWishlist = useWishlistStore(state =>
+    product ? state.isInWishlist(product.id) : false
+  );
 
   // 관련 상품 조회
   const { data: relatedProducts } = useProducts({
@@ -75,7 +84,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             Product Not Found
           </h2>
           <p className="text-gray-600 mb-6">
-            The product you're looking for doesn't exist.
+            The product you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link href="/products">
             <Button>Back to Products</Button>
@@ -86,12 +95,19 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   }
 
   const handleAddToCart = () => {
-    console.log('Add to cart:', { product, quantity });
+    if (product) {
+      addToCart(product, quantity);
+    }
   };
 
   const handleToggleWishlist = () => {
-    setIsInWishlist(!isInWishlist);
-    console.log('Toggle wishlist:', product);
+    if (product) {
+      if (isInWishlist) {
+        removeFromWishlist(product.id);
+      } else {
+        addToWishlist(product);
+      }
+    }
   };
 
   const handleShare = () => {
@@ -141,30 +157,40 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
+            <div
+              className="relative aspect-square overflow-hidden rounded-lg bg-white"
+              role="img"
+              aria-label={`${product.name} main image`}
+            >
               <Image
                 src={images[selectedImage]}
-                alt={product.name}
+                alt={`${product.name} - ${product.category} product`}
                 fill
                 className="object-cover"
                 priority
               />
             </div>
-            <div className="flex gap-2">
+            <div
+              className="flex gap-2"
+              role="group"
+              aria-label="Product image gallery"
+            >
               {images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
                   className={cn(
-                    'relative h-20 w-20 overflow-hidden rounded-lg border-2 transition-all',
+                    "relative h-20 w-20 overflow-hidden rounded-lg border-2 transition-all cursor-pointer",
                     selectedImage === index
-                      ? 'border-blue-600'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? "border-blue-600"
+                      : "border-gray-200 hover:border-gray-300"
                   )}
+                  aria-label={`View image ${index + 1} of ${images.length}`}
+                  aria-pressed={selectedImage === index}
                 >
                   <Image
                     src={image}
-                    alt={`${product.name} ${index + 1}`}
+                    alt={`${product.name} view ${index + 1}`}
                     fill
                     className="object-cover"
                   />
@@ -192,10 +218,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     <Star
                       key={i}
                       className={cn(
-                        'h-5 w-5',
+                        "h-5 w-5",
                         i < Math.floor(product.rating)
-                          ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300'
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
                       )}
                     />
                   ))}
@@ -248,6 +274,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     size="sm"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
+                    className="cursor-pointer disabled:cursor-not-allowed"
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -261,6 +288,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                       setQuantity(Math.min(product.stock, quantity + 1))
                     }
                     disabled={quantity >= product.stock}
+                    className="cursor-pointer disabled:cursor-not-allowed"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -274,25 +302,42 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <Button
                   onClick={handleAddToCart}
                   disabled={!product.inStock}
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                   size="lg"
+                  aria-label={
+                    product.inStock
+                      ? `Add ${quantity} ${
+                          quantity === 1 ? "item" : "items"
+                        } to cart`
+                      : "Product out of stock"
+                  }
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                  {product.inStock ? "Add to Cart" : "Out of Stock"}
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={handleToggleWishlist}
+                  className="cursor-pointer"
+                  aria-label={
+                    isInWishlist ? "Remove from wishlist" : "Add to wishlist"
+                  }
                 >
                   <Heart
                     className={cn(
-                      'h-5 w-5',
-                      isInWishlist ? 'fill-red-500 text-red-500' : ''
+                      "h-5 w-5",
+                      isInWishlist ? "fill-red-500 text-red-500" : ""
                     )}
                   />
                 </Button>
-                <Button variant="outline" size="lg" onClick={handleShare}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleShare}
+                  className="cursor-pointer"
+                  aria-label="Share this product"
+                >
                   <Share2 className="h-5 w-5" />
                 </Button>
               </div>
@@ -333,20 +378,14 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         {relatedProducts?.data && relatedProducts.data.length > 0 && (
           <div className="mt-16">
             <h2 className="text-2xl font-bold mb-8">Related Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
               {relatedProducts.data
-                .filter(p => p.id !== product.id)
+                .filter((p: Product) => p.id !== product.id)
                 .slice(0, 4)
-                .map(relatedProduct => (
+                .map((relatedProduct: Product) => (
                   <ProductCard
                     key={relatedProduct.id}
                     product={relatedProduct}
-                    onAddToCart={() =>
-                      console.log('Add to cart:', relatedProduct)
-                    }
-                    onToggleWishlist={() =>
-                      console.log('Toggle wishlist:', relatedProduct)
-                    }
                   />
                 ))}
             </div>

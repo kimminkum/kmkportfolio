@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Search,
   ShoppingCart,
@@ -14,13 +14,22 @@ import {
   Menu,
   X,
   ChevronDown,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { useCartStore } from "@/stores/cartStore";
+import { useWishlistStore } from "@/stores/wishlistStore";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  const cartTotalItems = useCartStore(state => state.totalItems);
+  const wishlistTotalItems = useWishlistStore(state => state.totalItems);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,14 +39,14 @@ export function Header() {
   };
 
   const categories = [
-    'Electronics',
-    'Clothing',
-    'Books',
-    'Home & Garden',
-    'Sports',
-    'Beauty',
-    'Toys',
-    'Automotive',
+    "Electronics",
+    "Clothing",
+    "Books",
+    "Home & Garden",
+    "Sports",
+    "Beauty",
+    "Toys",
+    "Automotive",
   ];
 
   return (
@@ -52,12 +61,12 @@ export function Header() {
               <span className="hidden sm:inline">30-day return policy</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="/help" className="hover:text-gray-300">
+              <span className="text-gray-500 cursor-not-allowed">
                 Help Center
-              </Link>
-              <Link href="/track-order" className="hover:text-gray-300">
+              </span>
+              <span className="text-gray-500 cursor-not-allowed">
                 Track Order
-              </Link>
+              </span>
             </div>
           </div>
         </div>
@@ -75,15 +84,23 @@ export function Header() {
           </Link>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-8">
+          <form
+            onSubmit={handleSearch}
+            className="flex-1 max-w-2xl mx-8"
+            role="search"
+          >
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                aria-hidden="true"
+              />
               <Input
                 type="text"
                 placeholder="Search for products..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full"
+                aria-label="Search for products"
               />
             </div>
           </form>
@@ -91,29 +108,59 @@ export function Header() {
           {/* Right Side Actions */}
           <div className="flex items-center gap-4">
             {/* Wishlist */}
-            <Button variant="ghost" size="sm" className="relative">
-              <Heart className="h-5 w-5" />
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
+            <Link href="/wishlist" aria-label="View wishlist">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative cursor-pointer"
+                aria-label={`Wishlist${
+                  wishlistTotalItems > 0 ? ` (${wishlistTotalItems} items)` : ""
+                }`}
               >
-                0
-              </Badge>
-            </Button>
+                <Heart className="h-5 w-5" />
+                {mounted && wishlistTotalItems > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                    aria-label={`${wishlistTotalItems} items in wishlist`}
+                  >
+                    {wishlistTotalItems}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
 
             {/* Cart */}
-            <Button variant="ghost" size="sm" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
+            <Link href="/cart" aria-label="View shopping cart">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative cursor-pointer"
+                aria-label={`Shopping cart${
+                  cartTotalItems > 0 ? ` (${cartTotalItems} items)` : ""
+                }`}
               >
-                0
-              </Badge>
-            </Button>
+                <ShoppingCart className="h-5 w-5" />
+                {mounted && cartTotalItems > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                    aria-label={`${cartTotalItems} items in cart`}
+                  >
+                    {cartTotalItems}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
 
-            {/* User Account */}
-            <Button variant="ghost" size="sm">
+            {/* User Account - Disabled */}
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="User account (not available)"
+              disabled
+              className="cursor-not-allowed"
+            >
               <User className="h-5 w-5" />
             </Button>
 
@@ -123,6 +170,8 @@ export function Header() {
               size="sm"
               className="lg:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? (
                 <X className="h-5 w-5" />
@@ -163,43 +212,28 @@ export function Header() {
               {/* Main Navigation Links */}
               <Link
                 href="/products"
-                className="text-gray-700 hover:text-blue-600 font-medium"
+                className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer"
               >
                 All Products
               </Link>
-              <Link
-                href="/deals"
-                className="text-gray-700 hover:text-blue-600 font-medium"
-              >
+              <span className="text-gray-400 font-medium cursor-not-allowed">
                 Deals
-              </Link>
-              <Link
-                href="/new"
-                className="text-gray-700 hover:text-blue-600 font-medium"
-              >
+              </span>
+              <span className="text-gray-400 font-medium cursor-not-allowed">
                 New Arrivals
-              </Link>
-              <Link
-                href="/brands"
-                className="text-gray-700 hover:text-blue-600 font-medium"
-              >
+              </span>
+              <span className="text-gray-400 font-medium cursor-not-allowed">
                 Brands
-              </Link>
+              </span>
             </div>
 
             <div className="flex items-center gap-4">
-              <Link
-                href="/help"
-                className="text-sm text-gray-600 hover:text-blue-600"
-              >
+              <span className="text-sm text-gray-400 cursor-not-allowed">
                 Help
-              </Link>
-              <Link
-                href="/contact"
-                className="text-sm text-gray-600 hover:text-blue-600"
-              >
+              </span>
+              <span className="text-sm text-gray-400 cursor-not-allowed">
                 Contact
-              </Link>
+              </span>
             </div>
           </div>
         </nav>
@@ -229,22 +263,16 @@ export function Header() {
                 <div className="space-y-1">
                   <Link
                     href="/products"
-                    className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600"
+                    className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
                   >
                     All Products
                   </Link>
-                  <Link
-                    href="/deals"
-                    className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600"
-                  >
+                  <span className="block px-3 py-2 text-sm text-gray-400 cursor-not-allowed">
                     Deals
-                  </Link>
-                  <Link
-                    href="/new"
-                    className="block px-3 py-2 text-sm text-gray-600 hover:text-blue-600"
-                  >
+                  </span>
+                  <span className="block px-3 py-2 text-sm text-gray-400 cursor-not-allowed">
                     New Arrivals
-                  </Link>
+                  </span>
                 </div>
               </div>
             </div>

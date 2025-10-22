@@ -1,16 +1,16 @@
-import { Product, PaginatedResponse } from '@/types';
+import { Product, PaginatedResponse } from "@/types";
 
 // Mock 데이터 생성
 const generateMockProducts = (): Product[] => {
   const categories = [
-    'electronics',
-    'clothing',
-    'books',
-    'home',
-    'sports',
-    'beauty',
-    'toys',
-    'automotive',
+    "electronics",
+    "clothing",
+    "books",
+    "home",
+    "sports",
+    "beauty",
+    "toys",
+    "automotive",
   ];
   const products: Product[] = [];
 
@@ -23,7 +23,9 @@ const generateMockProducts = (): Product[] => {
 
     products.push({
       id: `product-${i}`,
-      name: `Product ${i} - ${category.charAt(0).toUpperCase() + category.slice(1)}`,
+      name: `Product ${i} - ${
+        category.charAt(0).toUpperCase() + category.slice(1)
+      }`,
       description: `This is a great ${category} product with excellent quality and features. Perfect for your needs.`,
       price,
       image: `https://picsum.photos/300/300?random=${i}`,
@@ -56,7 +58,7 @@ export const productService = {
     maxPrice?: number;
     inStock?: boolean;
     sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
+    sortOrder?: "asc" | "desc";
   }): Promise<PaginatedResponse<Product>> {
     const {
       page = 1,
@@ -66,8 +68,8 @@ export const productService = {
       minPrice,
       maxPrice,
       inStock,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
+      sortBy = "createdAt",
+      sortOrder = "desc",
     } = params;
 
     // 필터링
@@ -107,18 +109,18 @@ export const productService = {
 
     // 정렬
     filteredProducts.sort((a, b) => {
-      let aValue: any = a[sortBy as keyof Product];
-      let bValue: any = b[sortBy as keyof Product];
+      const aValue = a[sortBy as keyof Product];
+      const bValue = b[sortBy as keyof Product];
 
-      if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
+      const aValueStr =
+        typeof aValue === "string" ? aValue.toLowerCase() : aValue;
+      const bValueStr =
+        typeof bValue === "string" ? bValue.toLowerCase() : bValue;
 
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
+      if (sortOrder === "asc") {
+        return aValueStr > bValueStr ? 1 : -1;
       } else {
-        return aValue < bValue ? 1 : -1;
+        return aValueStr < bValueStr ? 1 : -1;
       }
     });
 
@@ -150,7 +152,7 @@ export const productService = {
     const product = mockProducts.find(p => p.id === id);
 
     if (!product) {
-      throw new Error('Product not found');
+      throw new Error("Product not found");
     }
 
     // 네트워크 지연 시뮬레이션

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ProductCard } from '@/components/features/ProductCard';
-import { useProducts } from '@/hooks/useProducts';
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ProductCard } from "@/components/features/ProductCard";
+import { useProducts } from "@/hooks/useProducts";
+import { Product } from "@/types";
 import {
   ShoppingBag,
   Truck,
@@ -16,75 +16,75 @@ import {
   ArrowRight,
   TrendingUp,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function HomePage() {
   // 인기 상품 조회
   const { data: popularProducts } = useProducts({
-    sortBy: 'rating',
-    sortOrder: 'desc',
+    sortBy: "rating",
+    sortOrder: "desc",
     limit: 8,
   });
 
   // 신상품 조회
   const { data: newProducts } = useProducts({
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
+    sortBy: "createdAt",
+    sortOrder: "desc",
     limit: 8,
   });
 
   const features = [
     {
       icon: Truck,
-      title: 'Free Shipping',
-      description: 'Free shipping on orders over $50',
+      title: "Free Shipping",
+      description: "Free shipping on orders over $50",
     },
     {
       icon: Shield,
-      title: 'Secure Payment',
-      description: '100% secure payment processing',
+      title: "Secure Payment",
+      description: "100% secure payment processing",
     },
     {
       icon: Headphones,
-      title: '24/7 Support',
-      description: 'Round-the-clock customer support',
+      title: "24/7 Support",
+      description: "Round-the-clock customer support",
     },
     {
       icon: Zap,
-      title: 'Fast Delivery',
-      description: 'Same-day delivery available',
+      title: "Fast Delivery",
+      description: "Same-day delivery available",
     },
   ];
 
   const categories = [
     {
-      name: 'Electronics',
-      image: 'https://picsum.photos/300/200?random=1',
+      name: "Electronics",
+      image: "https://picsum.photos/300/200?random=1",
       count: 150,
     },
     {
-      name: 'Clothing',
-      image: 'https://picsum.photos/300/200?random=2',
+      name: "Clothing",
+      image: "https://picsum.photos/300/200?random=2",
       count: 200,
     },
     {
-      name: 'Books',
-      image: 'https://picsum.photos/300/200?random=3',
+      name: "Books",
+      image: "https://picsum.photos/300/200?random=3",
       count: 100,
     },
     {
-      name: 'Home & Garden',
-      image: 'https://picsum.photos/300/200?random=4',
+      name: "Home & Garden",
+      image: "https://picsum.photos/300/200?random=4",
       count: 80,
     },
     {
-      name: 'Sports',
-      image: 'https://picsum.photos/300/200?random=5',
+      name: "Sports",
+      image: "https://picsum.photos/300/200?random=5",
       count: 120,
     },
     {
-      name: 'Beauty',
-      image: 'https://picsum.photos/300/200?random=6',
+      name: "Beauty",
+      image: "https://picsum.photos/300/200?random=6",
       count: 90,
     },
   ];
@@ -97,7 +97,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-5xl font-bold mb-6 leading-tight">
-                Discover Amazing Products at{' '}
+                Discover Amazing Products at{" "}
                 <span className="text-yellow-400">Great Prices</span>
               </h1>
               <p className="text-xl mb-8 text-blue-100">
@@ -159,17 +159,18 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Shop by Category</h2>
             <p className="text-gray-600">
-              Find exactly what you're looking for
+              Find exactly what you&apos;re looking for
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 auto-rows-fr">
             {categories.map((category, index) => (
               <Link
                 key={index}
                 href={`/products?category=${category.name.toLowerCase()}`}
+                className="h-full"
               >
-                <Card className="group hover:shadow-lg transition-all cursor-pointer">
-                  <CardContent className="p-0">
+                <Card className="group hover:shadow-lg transition-all cursor-pointer h-full flex flex-col">
+                  <CardContent className="p-0 flex flex-col h-full">
                     <div className="relative aspect-square overflow-hidden rounded-t-lg">
                       <Image
                         src={category.image}
@@ -178,8 +179,10 @@ export default function HomePage() {
                         className="object-cover group-hover:scale-105 transition-transform"
                       />
                     </div>
-                    <div className="p-4 text-center">
-                      <h3 className="font-semibold mb-1">{category.name}</h3>
+                    <div className="p-4 text-center flex-1 flex flex-col justify-center">
+                      <h3 className="font-semibold mb-1 min-h-[1.5rem]">
+                        {category.name}
+                      </h3>
                       <p className="text-sm text-gray-500">
                         {category.count} items
                       </p>
@@ -207,16 +210,9 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {popularProducts?.data?.slice(0, 4).map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={() => console.log('Add to cart:', product)}
-                onToggleWishlist={() =>
-                  console.log('Toggle wishlist:', product)
-                }
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+            {popularProducts?.data?.slice(0, 4).map((product: Product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
@@ -237,16 +233,9 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {newProducts?.data?.slice(0, 4).map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={() => console.log('Add to cart:', product)}
-                onToggleWishlist={() =>
-                  console.log('Toggle wishlist:', product)
-                }
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+            {newProducts?.data?.slice(0, 4).map((product: Product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>

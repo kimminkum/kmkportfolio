@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface PaginationProps {
   currentPage: number;
@@ -29,7 +29,7 @@ export function Pagination({
     }
 
     if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...');
+      rangeWithDots.push(1, "...");
     } else {
       rangeWithDots.push(1);
     }
@@ -37,7 +37,7 @@ export function Pagination({
     rangeWithDots.push(...range);
 
     if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push('...', totalPages);
+      rangeWithDots.push("...", totalPages);
     } else {
       rangeWithDots.push(totalPages);
     }
@@ -50,8 +50,10 @@ export function Pagination({
   const visiblePages = getVisiblePages();
 
   return (
-    <div
-      className={cn('flex items-center justify-center space-x-2', className)}
+    <nav
+      className={cn("flex items-center justify-center space-x-2", className)}
+      role="navigation"
+      aria-label="Pagination"
     >
       {/* Previous Button */}
       <Button
@@ -60,6 +62,7 @@ export function Pagination({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="flex items-center gap-1"
+        aria-label="Go to previous page"
       >
         <ChevronLeft className="h-4 w-4" />
         Previous
@@ -68,9 +71,15 @@ export function Pagination({
       {/* Page Numbers */}
       <div className="flex items-center space-x-1">
         {visiblePages.map((page, index) => {
-          if (page === '...') {
+          if (page === "...") {
             return (
-              <Button key={`dots-${index}`} variant="ghost" size="sm" disabled>
+              <Button
+                key={`dots-${index}`}
+                variant="ghost"
+                size="sm"
+                disabled
+                aria-label="More pages"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             );
@@ -82,13 +91,15 @@ export function Pagination({
           return (
             <Button
               key={pageNumber}
-              variant={isActive ? 'default' : 'outline'}
+              variant={isActive ? "default" : "outline"}
               size="sm"
               onClick={() => onPageChange(pageNumber)}
               className={cn(
-                'min-w-[40px]',
-                isActive && 'bg-blue-600 hover:bg-blue-700'
+                "min-w-[40px]",
+                isActive && "bg-blue-600 hover:bg-blue-700"
               )}
+              aria-label={`Go to page ${pageNumber}`}
+              aria-current={isActive ? "page" : undefined}
             >
               {pageNumber}
             </Button>
@@ -103,10 +114,11 @@ export function Pagination({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="flex items-center gap-1"
+        aria-label="Go to next page"
       >
         Next
         <ChevronRight className="h-4 w-4" />
       </Button>
-    </div>
+    </nav>
   );
 }
